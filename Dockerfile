@@ -1,0 +1,13 @@
+FROM golang:1.14
+WORKDIR /go/src/app
+COPY . .
+
+RUN go get -d -v ./...
+RUN go install -v ./...
+
+ARG FILE_UPLOAD_DIRECTORY
+ENV FILE_UPLOAD_DIRECTORY $FILE_UPLOAD_DIRECTORY
+
+RUN mkdir -p $FILE_UPLOAD_DIRECTORY
+
+CMD ["juno"]
