@@ -4,6 +4,8 @@
 
 Juno is a very tiny and simple to use http file server
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ec36623bbeee4ed5a51b0758bc4dc215)](https://www.codacy.com/manual/MensurOwary/juno?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MensurOwary/juno&amp;utm_campaign=Badge_Grade)
+
 ## Endpoints
 
 | method    | endpoint                  | does                                                                      |
