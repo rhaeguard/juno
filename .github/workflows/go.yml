@@ -36,11 +36,11 @@ jobs:
     - name: Test
       run: go test --cover -v ./...
       env:
-        FILE_UPLOAD_DIRECTORYL: __uploads__
-        JWT_REALML: junoland
-        JWT_SECRETL: sA4]fc4A{222<{Vh)T
-        APPLICATION_PORTL: 8888
-        DATABASE_USERNAMEL: postgres
-        DATABASE_PASSWORDL: admin
-        DATABASE_ENDPOINTL: localhost
-        DATABASE_NAMEL: juno_db
+        FILE_UPLOAD_DIRECTORY: __uploads__
+        JWT_REALM: junoland
+        JWT_SECRET: sA4]fc4A{222<{Vh)T
+        APPLICATION_PORT: 8888
+        DATABASE_USERNAME: postgres
+        DATABASE_PASSWORD: admin
+        DATABASE_ENDPOINT: localhost
+        DATABASE_NAME: juno_db
