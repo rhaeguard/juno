@@ -1,0 +1,21 @@
+version: '3.0'
+services:
+  unit:
+    image: golang:1.14
+    build: .
+    volumes:
+      - .:/usr/src/app
+      - /tmp/go:/go
+    working_dir: /usr/src/app
+    command: bash -c "go get -d -v && go test --cover -v ./... && go build -v -o junot"
+    ports:
+      - "8080:8080"
+    environment:
+      - FILE_UPLOAD_DIRECTORY=__uploads__
+      - JWT_REALM=junoland
+      - JWT_SECRET=sA4]fc4A{222<{Vh)T
+      - APPLICATION_PORT=8888
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=admin
+      - DATABASE_ENDPOINT=localhost
+      - DATABASE_NAME=juno_db

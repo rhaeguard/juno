@@ -77,15 +77,10 @@ func TestService_DeleteSingleResourceById(t *testing.T) {
 
 	t.Run("When resource exists and data successfully deleted but file could not be deleted", func(t *testing.T) {
 		baseFilename := createDummyFile(t)
-		handle, err := os.Open(tmpDir + "/" + baseFilename) // this will keep the file busy on some other process
-
-		if err != nil {
-			t.Fatal(err)
-		}
 
 		db, mock := getDbAndMock(t)
 		s := getService(db, download.DownloadableResource{
-			SavedLocation: baseFilename,
+			SavedLocation: baseFilename + "random",
 		})
 
 		mock.ExpectBegin()
@@ -102,7 +97,6 @@ func TestService_DeleteSingleResourceById(t *testing.T) {
 
 		t.Cleanup(func() {
 			_ = os.RemoveAll("./tmp")
-			_ = handle.Close()
 			_ = db.Close()
 		})
 	})

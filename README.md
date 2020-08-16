@@ -25,3 +25,11 @@ Run the following command to launch the application
 ```shell script
 docker-compose up
 ```
+
+## Testing
+
+To run the tests issue the following command
+
+```shell script
+docker-compose -f docker-compose-test.yml up
+```
