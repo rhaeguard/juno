@@ -16,22 +16,19 @@ import (
 )
 
 func Initialize(db *sql.DB) *gin.Engine {
-	// dependencies
-	uploadService := upload.NewService(db)
-	downloadService := download.NewService(db)
-	interactionService := interactions.NewService(db, downloadService)
-	//
 	engine := gin.Default()
+
+	// dependencies init
+	us := upload.NewService(db)
+	dr := download.NewRepository(db)
+	ds := download.NewService(dr)
+	ir := interactions.NewRepository(db)
+	is := interactions.NewService(ir, ds)
+	// dependencies init end
 
 	authMiddleware := auth.JwtMiddleware()
 
-	engine.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
-		claims := jwt.ExtractClaims(c)
-		logrus.Printf("NoRoute claims: %#v", claims)
-		c.JSON(http.StatusNotFound, commons.MakeFailureResponse(
-			"Page not found", http.StatusNotFound,
-		))
-	})
+	engine.NoRoute(authMiddleware.MiddlewareFunc(), NoRouteHandler())
 
 	versioning := engine.Group(config.Config.ApiVersion)
 	{
@@ -42,12 +39,22 @@ func Initialize(db *sql.DB) *gin.Engine {
 		resourcesGroup := versioning.Group("/resources")
 		resourcesGroup.Use(authMiddleware.MiddlewareFunc())
 		{
-			resourcesGroup.Handle(http.MethodGet, "", resources.GetAppResourcesInformation(downloadService))
-			resourcesGroup.Handle(http.MethodPost, "/upload", resources.Upload(uploadService))
-			resourcesGroup.Handle(http.MethodGet, "/:id", resources.DownloadSingleAppResource(downloadService))
-			resourcesGroup.Handle(http.MethodDelete, "/:id", resources.DeleteSingleAppResource(interactionService))
+			resourcesGroup.Handle(http.MethodGet, "", resources.GetAppResourcesInformation(ds))
+			resourcesGroup.Handle(http.MethodPost, "/upload", resources.Upload(us))
+			resourcesGroup.Handle(http.MethodGet, "/:id", resources.DownloadSingleAppResource(ds))
+			resourcesGroup.Handle(http.MethodDelete, "/:id", resources.DeleteSingleAppResource(is))
 		}
 	}
 
 	return engine
+}
+
+func NoRouteHandler() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		claims := jwt.ExtractClaims(c)
+		logrus.Printf("NoRoute claims: %#v", claims)
+		c.JSON(http.StatusNotFound, commons.MakeFailureResponse(
+			"Page not found", http.StatusNotFound,
+		))
+	}
 }

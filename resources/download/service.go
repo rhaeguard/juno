@@ -1,8 +1,6 @@
 package download
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/mensurowary/juno/auth"
 	"github.com/mensurowary/juno/commons"
 	"github.com/mensurowary/juno/config"
 	"net/http"
@@ -10,17 +8,7 @@ import (
 	"strings"
 )
 
-type Service struct {
-	r Repository
-}
-
-type SingleResourceRequestParams struct {
-	ResourceId, AppId, Name string
-	Download                bool
-}
-
-func (s Service) GetAppResourcesInformation(c *gin.Context) ResourceInformation {
-	appId := auth.GetAppId(c)
+func (s *Service) GetAppResourcesInformation(appId string) ResourceInformation {
 	resources, err := s.r.GetResourcesByApplication(appId)
 	if resources == nil {
 		resources = []Resource{}
@@ -31,33 +19,49 @@ func (s Service) GetAppResourcesInformation(c *gin.Context) ResourceInformation 
 	}
 }
 
-func (s Service) GetSingleResource(c *gin.Context, params SingleResourceRequestParams) {
+func (s *Service) GetSingleResource(params SingleResourceRequestParams) SingleResourceResult {
 	downloadableResource := s.r.FindResourceLocation(params.AppId, params.ResourceId)
 
 	if downloadableResource == NoDownloadableResource {
-		c.JSON(http.StatusNotFound, commons.MakeFailureResponse("Could not find the requested resource", http.StatusNotFound))
-		return
+		return SingleResourceResult{
+			File:   nil,
+			Data:   commons.MakeFailureResponse("Could not find the requested resource", http.StatusNotFound),
+			Status: http.StatusNotFound,
+		}
 	}
 
 	if params.Download {
-		filePath := filepath.Join(config.Config.FileUploadDir, downloadableResource.SavedLocation)
-		c.FileAttachment(filePath, fullPath(&params, &downloadableResource.Resource))
-	} else {
-		c.JSON(http.StatusOK, commons.MakeSuccessResponse("Successfully retrieved the resource information", downloadableResource.Resource))
+		path := filepath.Join(config.Config.FileUploadDir, downloadableResource.SavedLocation)
+		name := getFileName(&params, &downloadableResource.Resource)
+		return SingleResourceResult{
+			File: &SingleResourceFileResult{
+				Name: name,
+				Path: path,
+			},
+		}
+	}
+
+	return SingleResourceResult{
+		File:   nil,
+		Data:   commons.MakeSuccessResponse("Successfully retrieved the resource information", downloadableResource.Resource),
+		Status: http.StatusOK,
 	}
 }
 
-func (s Service) GetSingleResourceInformation(params SingleResourceRequestParams) DownloadableResource {
+func (s *Service) GetSingleResourceInformation(params SingleResourceRequestParams) DownloadableResource {
 	return s.r.FindResourceLocation(params.AppId, params.ResourceId)
 }
 
-func fullPath(p *SingleResourceRequestParams, r *Resource) string {
-	name := strings.TrimSpace(p.Name)
-	if name == "" {
-		if r.Extension == "" {
-			return r.Name
-		}
-		return r.Name + "." + r.Extension
+func getFileName(p *SingleResourceRequestParams, r *Resource) string {
+	result := r.Name
+
+	if name := strings.TrimSpace(p.Name); name != "" {
+		result = name
 	}
-	return name + "." + r.Extension
+
+	if r.Extension != "" {
+		result += "." + r.Extension
+	}
+
+	return result
 }

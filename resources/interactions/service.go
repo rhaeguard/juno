@@ -1,7 +1,6 @@
 package interactions
 
 import (
-	"errors"
 	"github.com/mensurowary/juno/config"
 	"github.com/mensurowary/juno/resources/download"
 	log "github.com/sirupsen/logrus"
@@ -9,17 +8,8 @@ import (
 	"path/filepath"
 )
 
-type Service struct {
-	r               Repository
-	resourceService download.Service
-}
-
-var CouldNotDelete = errors.New("could not delete the resource information from database")
-var CouldNotDeleteFile = errors.New("could not delete the file")
-var CouldNotFind = errors.New("could not find the resource")
-
-func (s Service) DeleteSingleResourceById(resourceId, appId string) error {
-	resourceInfo := s.resourceService.GetSingleResourceInformation(download.SingleResourceRequestParams{
+func (s *Service) DeleteSingleResourceById(resourceId, appId string) error {
+	resourceInfo := s.rs.GetSingleResourceInformation(download.SingleResourceRequestParams{
 		ResourceId: resourceId,
 		AppId:      appId,
 	})
@@ -32,7 +22,7 @@ func (s Service) DeleteSingleResourceById(resourceId, appId string) error {
 	err := s.r.DeleteResourceById(resourceId, appId)
 	if err != nil {
 		log.Errorf("Could not delete the resource [%s]", resourceId)
-		return CouldNotDelete
+		return CouldNotDeleteData
 	}
 
 	location := filepath.Join(config.Config.FileUploadDir, resourceInfo.SavedLocation)

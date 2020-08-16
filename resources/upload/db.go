@@ -60,7 +60,7 @@ func (r *Repository) persistResourceInformation(ID string, params *SaveUploadedR
 		}
 
 		if err := tx.Commit(); err != nil {
-			log.Info("Could not commit! : %v", err)
+			log.Infof("Could not commit! : %v", err)
 			return CouldNotPersist
 		}
 		log.Info("Successfully inserted the data")

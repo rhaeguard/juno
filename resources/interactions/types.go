@@ -2,14 +2,47 @@ package interactions
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/mensurowary/juno/resources/download"
 )
 
-func NewService(db *sql.DB, downloadService download.Service) Service {
-	return Service{
-		r: Repository{
-			db: db,
-		},
-		resourceService: downloadService,
+type Repository struct {
+	db *sql.DB
+}
+
+type Service struct {
+	r  *Repository
+	rs resourceService
+}
+
+type resourceService interface {
+	GetSingleResourceInformation(params download.SingleResourceRequestParams) download.DownloadableResource
+}
+
+// Action errors
+var (
+	CouldNotDeleteData = errors.New("could not delete the resource information from database")
+	CouldNotDeleteFile = errors.New("could not delete the file")
+	CouldNotFind       = errors.New("could not find the resource")
+)
+
+// Database action errors
+var (
+	ErrCouldNotStartTx          = errors.New("could not start the transaction")
+	ErrCouldNotCreatePS         = errors.New("could not create the prepared statement")
+	ErrCouldNotExecStmt         = errors.New("could not execute the prepared statement")
+	ErrCouldNotReadRowsAffected = errors.New("could read rows affected")
+	ErrMoreThanOneRowsAffected  = errors.New("could read rows affected")
+	ErrCouldNotCommit           = errors.New("could not commit the deletion")
+)
+
+func NewService(r *Repository, rs resourceService) *Service {
+	return &Service{
+		r:  r,
+		rs: rs,
 	}
+}
+
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{db}
 }

@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func (r Repository) GetResourcesByApplication(appId string) ([]Resource, error) {
-	rows, err := queryAllForAppId(r, appId)
+func (r *Repository) GetResourcesByApplication(appId string) ([]Resource, error) {
+	rows, err := r.queryAllForAppId(appId)
 	if err != nil {
 		return nil, err
 	}
@@ -36,13 +36,8 @@ func (r Repository) GetResourcesByApplication(appId string) ([]Resource, error) 
 	return resources, nil
 }
 
-func queryAllForAppId(r Repository, appId string) (*sql.Rows, error) {
-	rows, err := r.db.Query(`
-		SELECT r.id, r.name, r.extension, r.size, r.created_on
-		FROM resources r 
-		JOIN resource_relations rr ON r.id = rr.resource_id
-		WHERE rr.app_id = $1
-	`, appId)
+func (r *Repository) queryAllForAppId(appId string) (*sql.Rows, error) {
+	rows, err := r.db.Query(`SELECT r.id, r.name, r.extension, r.size, r.created_on FROM resources r JOIN resource_relations rr ON r.id = rr.resource_id WHERE rr.app_id = $1`, appId)
 
 	if err != nil {
 		log.Errorf("Error occurred while trying to retrieve resources for the app: %s : %v", appId, err)
@@ -51,14 +46,14 @@ func queryAllForAppId(r Repository, appId string) (*sql.Rows, error) {
 	return rows, nil
 }
 
-func (r Repository) FindResourceLocation(appId, resourceId string) DownloadableResource {
+func (r *Repository) FindResourceLocation(appId, resourceId string) DownloadableResource {
 	var (
 		name, extension, savedLocation, id string
 		size                               int64
 		createdOn                          time.Time
 	)
 
-	rows := queryForResourceInformation(appId, resourceId, r)
+	rows := r.queryForResourceInformation(appId, resourceId)
 	if err := rows.Scan(&id, &name, &extension, &size, &createdOn, &savedLocation); err != nil {
 		log.Errorf("Error occurred while mapping the results to objects : %v", err)
 		return NoDownloadableResource
@@ -75,7 +70,7 @@ func (r Repository) FindResourceLocation(appId, resourceId string) DownloadableR
 	}
 }
 
-func queryForResourceInformation(appId string, resourceId string, r Repository) *sql.Row {
+func (r *Repository) queryForResourceInformation(appId string, resourceId string) *sql.Row {
 	return r.db.QueryRow(`
 		SELECT r.id, r.name, r.extension, r.size, r.created_on, rr.saved_location
 		FROM resources r 

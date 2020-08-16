@@ -28,13 +28,32 @@ type DownloadableResource struct {
 	SavedLocation string
 }
 
+type Service struct {
+	r *Repository
+}
+
+type SingleResourceRequestParams struct {
+	ResourceId, AppId, Name string
+	Download                bool
+}
+
+type SingleResourceResult struct {
+	File   *SingleResourceFileResult
+	Data   interface{}
+	Status int
+}
+
+type SingleResourceFileResult struct {
+	Path, Name string
+}
+
 var CouldNotRetrieveResults = errors.New("could not retrieve the results")
 var NoDownloadableResource = DownloadableResource{}
 
-func NewService(db *sql.DB) Service {
-	return Service{
-		r: Repository{
-			db: db,
-		},
-	}
+func NewService(r *Repository) *Service {
+	return &Service{r}
+}
+
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{db}
 }
