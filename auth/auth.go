@@ -16,10 +16,12 @@ type login struct {
 
 var identityKey = "app_id"
 
+// Application represents the application/user of juno
 type Application struct {
-	Id string
+	ID string
 }
 
+// JwtMiddleware is the middleware that handles authentication and authorization
 func JwtMiddleware() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:           config.Config.JwtRealm,
@@ -47,7 +49,7 @@ func JwtMiddleware() *jwt.GinJWTMiddleware {
 
 func authorizer() func(data interface{}, c *gin.Context) bool {
 	return func(data interface{}, c *gin.Context) bool {
-		if v, ok := data.(*Application); ok && v.Id == "admin" {
+		if v, ok := data.(*Application); ok && v.ID == "admin" {
 			return true
 		}
 
@@ -66,7 +68,7 @@ func authenticator() func(c *gin.Context) (interface{}, error) {
 
 		if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
 			return &Application{
-				Id: userID,
+				ID: userID,
 			}, nil
 		}
 
@@ -78,7 +80,7 @@ func identityHandler() func(c *gin.Context) interface{} {
 	return func(c *gin.Context) interface{} {
 		claims := jwt.ExtractClaims(c)
 		return &Application{
-			Id: claims[identityKey].(string),
+			ID: claims[identityKey].(string),
 		}
 	}
 }
@@ -87,7 +89,7 @@ func payloadHandler() func(data interface{}) jwt.MapClaims {
 	return func(data interface{}) jwt.MapClaims {
 		if v, ok := data.(*Application); ok {
 			return jwt.MapClaims{
-				identityKey: v.Id,
+				identityKey: v.ID,
 			}
 		}
 		return jwt.MapClaims{}

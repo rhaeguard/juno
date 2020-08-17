@@ -15,7 +15,7 @@ import (
 )
 
 func TestService_GetAppResourcesInformation(t *testing.T) {
-	appId := "admin"
+	appID := "admin"
 
 	columns := []string{
 		"id", "name", "extension", "size", "created_on",
@@ -26,7 +26,7 @@ func TestService_GetAppResourcesInformation(t *testing.T) {
 		defer db.Close()
 
 		expected1 := Resource{
-			Id:        "123456",
+			ID:        "123456",
 			Name:      "Mipe Stiopic",
 			Extension: "txt",
 			Size:      123456,
@@ -34,7 +34,7 @@ func TestService_GetAppResourcesInformation(t *testing.T) {
 		}
 
 		expected2 := Resource{
-			Id:        "654321",
+			ID:        "654321",
 			Name:      "Daniel Cormier",
 			Extension: "epub",
 			Size:      654321,
@@ -52,7 +52,7 @@ func TestService_GetAppResourcesInformation(t *testing.T) {
 
 		s := getService(db)
 
-		ri := s.GetAppResourcesInformation(appId)
+		ri := s.GetAppResourcesInformation(appID)
 
 		assert.Nil(t, ri.Err)
 		assert.NotNil(t, ri.Resources)
@@ -70,7 +70,7 @@ func TestService_GetAppResourcesInformation(t *testing.T) {
 
 		s := getService(db)
 
-		ri := s.GetAppResourcesInformation(appId)
+		ri := s.GetAppResourcesInformation(appID)
 
 		assert.Nil(t, ri.Err)
 		assert.NotNil(t, ri.Resources)
@@ -88,9 +88,9 @@ func TestService_GetAppResourcesInformation(t *testing.T) {
 
 		s := getService(db)
 
-		ri := s.GetAppResourcesInformation(appId)
+		ri := s.GetAppResourcesInformation(appID)
 
-		assert.Equal(t, CouldNotRetrieveResults, ri.Err)
+		assert.Equal(t, ErrCouldNotRetrieveResults, ri.Err)
 		assert.NotNil(t, ri.Resources)
 		assert.Empty(t, ri.Resources)
 		assert.Nil(t, mock.ExpectationsWereMet())
@@ -106,9 +106,9 @@ func TestService_GetAppResourcesInformation(t *testing.T) {
 
 		s := getService(db)
 
-		ri := s.GetAppResourcesInformation(appId)
+		ri := s.GetAppResourcesInformation(appID)
 
-		assert.Equal(t, CouldNotRetrieveResults, ri.Err)
+		assert.Equal(t, ErrCouldNotRetrieveResults, ri.Err)
 		assert.NotNil(t, ri.Resources)
 		assert.Empty(t, ri.Resources)
 		assert.Nil(t, mock.ExpectationsWereMet())
@@ -125,7 +125,7 @@ func TestService_GetSingleResourceInformation(t *testing.T) {
 
 		expected := DownloadableResource{
 			Resource: Resource{
-				Id:        "123456",
+				ID:        "123456",
 				Name:      "mock",
 				Extension: "pdf",
 				CreatedOn: time.Now(),
@@ -143,8 +143,8 @@ func TestService_GetSingleResourceInformation(t *testing.T) {
 		s := getService(db)
 
 		actual := s.GetSingleResourceInformation(SingleResourceRequestParams{
-			ResourceId: "123456",
-			AppId:      "admin",
+			ResourceID: "123456",
+			AppID:      "admin",
 		})
 
 		assert.Equal(t, expected, actual)
@@ -162,8 +162,8 @@ func TestService_GetSingleResourceInformation(t *testing.T) {
 		s := getService(db)
 
 		actual := s.GetSingleResourceInformation(SingleResourceRequestParams{
-			ResourceId: "123456",
-			AppId:      "admin",
+			ResourceID: "123456",
+			AppID:      "admin",
 		})
 
 		assert.Equal(t, NoDownloadableResource, actual)
@@ -182,7 +182,7 @@ func TestService_GetSingleResource(t *testing.T) {
 
 		dr := DownloadableResource{
 			Resource: Resource{
-				Id:        "123456789",
+				ID:        "123456789",
 				Name:      "mock",
 				Extension: "pdf",
 				CreatedOn: time.Now(),
@@ -197,8 +197,8 @@ func TestService_GetSingleResource(t *testing.T) {
 			))
 
 		result := s.GetSingleResource(SingleResourceRequestParams{
-			AppId:      "admin",
-			ResourceId: "123456789",
+			AppID:      "admin",
+			ResourceID: "123456789",
 			Download:   false,
 		})
 
@@ -215,7 +215,7 @@ func TestService_GetSingleResource(t *testing.T) {
 
 		dr := DownloadableResource{
 			Resource: Resource{
-				Id:        "123456789",
+				ID:        "123456789",
 				Name:      "mock",
 				Extension: "pdf",
 				CreatedOn: time.Now(),
@@ -230,8 +230,8 @@ func TestService_GetSingleResource(t *testing.T) {
 			))
 
 		result := s.GetSingleResource(SingleResourceRequestParams{
-			AppId:      "admin",
-			ResourceId: "123456789",
+			AppID:      "admin",
+			ResourceID: "123456789",
 			Download:   true,
 		})
 
@@ -252,8 +252,8 @@ func TestService_GetSingleResource(t *testing.T) {
 			WillReturnRows(sqlmock.NewRows(columns))
 
 		result := s.GetSingleResource(SingleResourceRequestParams{
-			AppId:      "admin",
-			ResourceId: "123456789",
+			AppID:      "admin",
+			ResourceID: "123456789",
 			Download:   true,
 		})
 
@@ -311,7 +311,7 @@ func getService(db *sql.DB) *Service {
 
 func spread(resource Resource) []driver.Value {
 	return []driver.Value{
-		resource.Id, resource.Name, resource.Extension, resource.Size, resource.CreatedOn,
+		resource.ID, resource.Name, resource.Extension, resource.Size, resource.CreatedOn,
 	}
 }
 

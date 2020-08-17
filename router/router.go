@@ -20,8 +20,10 @@ func Initialize(db *sql.DB) *gin.Engine {
 
 	// dependencies init
 	us := upload.NewService(db)
+
 	dr := download.NewRepository(db)
 	ds := download.NewService(dr)
+
 	ir := interactions.NewRepository(db)
 	is := interactions.NewService(ir, ds)
 	// dependencies init end

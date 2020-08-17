@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-func (s *Service) GetAppResourcesInformation(appId string) ResourceInformation {
-	resources, err := s.r.GetResourcesByApplication(appId)
+func (s *Service) GetAppResourcesInformation(appID string) ResourceInformation {
+	resources, err := s.r.GetResourcesByApplication(appID)
 	if resources == nil {
 		resources = []Resource{}
 	}
@@ -20,7 +20,7 @@ func (s *Service) GetAppResourcesInformation(appId string) ResourceInformation {
 }
 
 func (s *Service) GetSingleResource(params SingleResourceRequestParams) SingleResourceResult {
-	downloadableResource := s.r.FindResourceLocation(params.AppId, params.ResourceId)
+	downloadableResource := s.r.FindResourceLocation(params.AppID, params.ResourceID)
 
 	if downloadableResource == NoDownloadableResource {
 		return SingleResourceResult{
@@ -49,7 +49,7 @@ func (s *Service) GetSingleResource(params SingleResourceRequestParams) SingleRe
 }
 
 func (s *Service) GetSingleResourceInformation(params SingleResourceRequestParams) DownloadableResource {
-	return s.r.FindResourceLocation(params.AppId, params.ResourceId)
+	return s.r.FindResourceLocation(params.AppID, params.ResourceID)
 }
 
 func getFileName(p *SingleResourceRequestParams, r *Resource) string {

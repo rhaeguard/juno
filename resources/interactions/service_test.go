@@ -14,12 +14,12 @@ import (
 
 var tmpDir = "./tmp"
 
-func TestService_DeleteSingleResourceById(t *testing.T) {
+func TestService_DeleteSingleResourceByID(t *testing.T) {
 	t.Run("When resource does not exist", func(t *testing.T) {
 		db, _ := getDbAndMock(t)
 		s := getService(db, download.NoDownloadableResource)
-		result := s.DeleteSingleResourceById("123456", "admin")
-		assert.Equal(t, CouldNotFind, result)
+		result := s.DeleteSingleResourceByID("123456", "admin")
+		assert.Equal(t, ErrCouldNotFind, result)
 		t.Cleanup(func() {
 			_ = db.Close()
 		})
@@ -39,7 +39,7 @@ func TestService_DeleteSingleResourceById(t *testing.T) {
 			WillReturnResult(sqlmock.NewResult(-1, 1))
 		mock.ExpectCommit()
 
-		result := s.DeleteSingleResourceById("123456789", "admin")
+		result := s.DeleteSingleResourceByID("123456789", "admin")
 
 		assert.Nil(t, result)
 		assert.Nil(t, mock.ExpectationsWereMet())
@@ -64,9 +64,9 @@ func TestService_DeleteSingleResourceById(t *testing.T) {
 			WillReturnResult(sqlmock.NewResult(-1, 2)) // more than one rows affected
 		mock.ExpectRollback()
 
-		result := s.DeleteSingleResourceById("123456789", "admin")
+		result := s.DeleteSingleResourceByID("123456789", "admin")
 
-		assert.Equal(t, CouldNotDeleteData, result)
+		assert.Equal(t, ErrCouldNotDeleteData, result)
 		assert.Nil(t, mock.ExpectationsWereMet())
 
 		t.Cleanup(func() {
@@ -90,9 +90,9 @@ func TestService_DeleteSingleResourceById(t *testing.T) {
 			WillReturnResult(sqlmock.NewResult(-1, 1))
 		mock.ExpectCommit()
 
-		result := s.DeleteSingleResourceById("123456789", "admin")
+		result := s.DeleteSingleResourceByID("123456789", "admin")
 
-		assert.Equal(t, CouldNotDeleteFile, result)
+		assert.Equal(t, ErrCouldNotDeleteFile, result)
 		assert.Nil(t, mock.ExpectationsWereMet())
 
 		t.Cleanup(func() {
@@ -102,13 +102,13 @@ func TestService_DeleteSingleResourceById(t *testing.T) {
 	})
 }
 
-func TestRepository_DeleteResourceById(t *testing.T) {
+func TestRepository_DeleteResourceByID(t *testing.T) {
 	t.Run("Tx init fails", func(t *testing.T) {
 		db, mock := getDbAndMock(t)
 		r := NewRepository(db)
 
 		mock.ExpectBegin().WillReturnError(errors.New("begin resulted in error"))
-		err := r.DeleteResourceById("", "")
+		err := r.DeleteResourceByID("", "")
 
 		assert.Equal(t, ErrCouldNotStartTx, err)
 		assert.Nil(t, mock.ExpectationsWereMet())
@@ -121,7 +121,7 @@ func TestRepository_DeleteResourceById(t *testing.T) {
 		mock.ExpectBegin()
 		mock.ExpectPrepare(`^DELETE FROM resources WHERE id IN*`).
 			WillReturnError(errors.New("failed for no reason :)"))
-		err := r.DeleteResourceById("", "")
+		err := r.DeleteResourceByID("", "")
 
 		assert.Equal(t, ErrCouldNotCreatePS, err)
 		assert.Nil(t, mock.ExpectationsWereMet())
@@ -136,7 +136,7 @@ func TestRepository_DeleteResourceById(t *testing.T) {
 			ExpectExec().
 			WithArgs("app_id", "resource_id").
 			WillReturnError(errors.New("failed for no reason too"))
-		err := r.DeleteResourceById("resource_id", "app_id")
+		err := r.DeleteResourceByID("resource_id", "app_id")
 
 		assert.Equal(t, ErrCouldNotExecStmt, err)
 		assert.Nil(t, mock.ExpectationsWereMet())
@@ -151,7 +151,7 @@ func TestRepository_DeleteResourceById(t *testing.T) {
 			ExpectExec().
 			WithArgs("app_id", "resource_id").
 			WillReturnResult(sqlmock.NewErrorResult(errors.New("fails for no reason")))
-		err := r.DeleteResourceById("resource_id", "app_id")
+		err := r.DeleteResourceByID("resource_id", "app_id")
 
 		assert.Equal(t, ErrCouldNotReadRowsAffected, err)
 		assert.Nil(t, mock.ExpectationsWereMet())
@@ -167,7 +167,7 @@ func TestRepository_DeleteResourceById(t *testing.T) {
 			WithArgs("app_id", "resource_id").
 			WillReturnResult(sqlmock.NewResult(1, 1))
 		mock.ExpectCommit().WillReturnError(errors.New("fails for no reason"))
-		err := r.DeleteResourceById("resource_id", "app_id")
+		err := r.DeleteResourceByID("resource_id", "app_id")
 
 		assert.Equal(t, ErrCouldNotCommit, err)
 		assert.Nil(t, mock.ExpectationsWereMet())

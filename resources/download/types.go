@@ -11,7 +11,7 @@ type Repository struct {
 }
 
 type Resource struct {
-	Id        string    `json:"id"`
+	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	Extension string    `json:"extension"`
 	Size      int64     `json:"size"`
@@ -33,7 +33,7 @@ type Service struct {
 }
 
 type SingleResourceRequestParams struct {
-	ResourceId, AppId, Name string
+	ResourceID, AppID, Name string
 	Download                bool
 }
 
@@ -47,8 +47,10 @@ type SingleResourceFileResult struct {
 	Path, Name string
 }
 
-var CouldNotRetrieveResults = errors.New("could not retrieve the results")
-var NoDownloadableResource = DownloadableResource{}
+var (
+	ErrCouldNotRetrieveResults = errors.New("could not retrieve the results")
+	NoDownloadableResource     = DownloadableResource{}
+)
 
 func NewService(r *Repository) *Service {
 	return &Service{r}

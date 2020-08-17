@@ -1,7 +1,11 @@
 package config
 
-import "os"
+import (
+	"os"
+	"strings"
+)
 
+// Config is the general application config
 var Config = struct {
 	ApiVersion    string
 	FileUploadDir string
@@ -16,6 +20,7 @@ var Config = struct {
 	Port:          getEnv("APPLICATION_PORT"),
 }
 
+// DatabaseConfig is the database specific config
 var DatabaseConfig = struct {
 	Username,
 	Password,
@@ -29,7 +34,7 @@ var DatabaseConfig = struct {
 }
 
 func getEnv(key string) string {
-	value := os.Getenv(key)
+	value := strings.TrimSpace(os.Getenv(key))
 	if value == "" {
 		panic("Missing value for the key : " + key)
 	}

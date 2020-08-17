@@ -21,11 +21,11 @@ func NewWebContext(g *gin.Context) *WebContext {
 	return &WebContext{g}
 }
 
-func (w *WebContext) GetAppId() string {
-	return auth.GetAppId(w.c)
+func (w *WebContext) GetAppID() string {
+	return auth.GetAppID(w.c)
 }
 
-func (w *WebContext) GetResourceId() string {
+func (w *WebContext) GetResourceID() string {
 	return w.Param("id")
 }
 

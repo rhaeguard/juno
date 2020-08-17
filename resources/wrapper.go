@@ -9,6 +9,8 @@ import (
 	"net/url"
 )
 
+// Upload is the upload handler
+// Deals with uploading a file and its different modes
 func Upload(handler uploadHandler) func(*gin.Context) {
 	return func(c *gin.Context) {
 		wc := util.NewWebContext(c)
@@ -16,6 +18,7 @@ func Upload(handler uploadHandler) func(*gin.Context) {
 	}
 }
 
+// GetAppResourcesInformation retrieves the resources information
 func GetAppResourcesInformation(handler resourcesHandler) func(*gin.Context) {
 	return func(c *gin.Context) {
 		wc := util.NewWebContext(c)
@@ -23,6 +26,7 @@ func GetAppResourcesInformation(handler resourcesHandler) func(*gin.Context) {
 	}
 }
 
+// DownloadSingleAppResource handles single resource information retrieval/file download
 func DownloadSingleAppResource(handler resourcesHandler) func(*gin.Context) {
 	return func(c *gin.Context) {
 		wc := util.NewWebContext(c)
@@ -30,6 +34,7 @@ func DownloadSingleAppResource(handler resourcesHandler) func(*gin.Context) {
 	}
 }
 
+// DeleteSingleAppResource handles the deletion of a resource
 func DeleteSingleAppResource(handler resourceInteractionHandler) func(*gin.Context) {
 	return func(c *gin.Context) {
 		wc := util.NewWebContext(c)
@@ -38,18 +43,19 @@ func DeleteSingleAppResource(handler resourceInteractionHandler) func(*gin.Conte
 }
 
 type uploadHandler interface {
-	HandleUpload(writer upload.FileWriter, fileHeader *multipart.FileHeader, appId string, values url.Values) (string, error)
+	HandleUpload(writer upload.FileWriter, fileHeader *multipart.FileHeader, appID string, values url.Values) (string, error)
 }
 
 type resourcesHandler interface {
-	GetAppResourcesInformation(appId string) download.ResourceInformation
+	GetAppResourcesInformation(appID string) download.ResourceInformation
 	GetSingleResource(params download.SingleResourceRequestParams) download.SingleResourceResult
 }
 
 type resourceInteractionHandler interface {
-	DeleteSingleResourceById(resourceId, appId string) error
+	DeleteSingleResourceByID(resourceID, appID string) error
 }
 
+// UploadResult represents the result of the file upload
 type UploadResult struct {
-	FileId string `json:"resourceId"`
+	FileID string `json:"resourceId"`
 }

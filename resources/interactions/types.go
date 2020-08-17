@@ -21,9 +21,9 @@ type resourceService interface {
 
 // Action errors
 var (
-	CouldNotDeleteData = errors.New("could not delete the resource information from database")
-	CouldNotDeleteFile = errors.New("could not delete the file")
-	CouldNotFind       = errors.New("could not find the resource")
+	ErrCouldNotDeleteData = errors.New("could not delete the resource information from database")
+	ErrCouldNotDeleteFile = errors.New("could not delete the file")
+	ErrCouldNotFind       = errors.New("could not find the resource")
 )
 
 // Database action errors

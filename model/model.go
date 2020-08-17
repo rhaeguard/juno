@@ -1,5 +1,6 @@
 package model
 
+// Application represents a domain object application
 type Application struct {
-	Id, Name, Description string
+	ID, Name, Description string
 }

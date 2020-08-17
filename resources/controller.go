@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// UploadHandler handles the overall flow of the file uploading
 func UploadHandler(wc *util.WebContext, handler uploadHandler) {
 	file, err := wc.FormFile()
 	if err != nil {
@@ -21,10 +22,10 @@ func UploadHandler(wc *util.WebContext, handler uploadHandler) {
 		return
 	}
 
-	appId := wc.GetAppId()
+	appID := wc.GetAppID()
 
-	ID, err := handler.HandleUpload(wc, file, appId, wc.Form())
-	if err == upload.FileCouldNotBeUploaded || ID == upload.EmptyId {
+	ID, err := handler.HandleUpload(wc, file, appID, wc.Form())
+	if err == upload.ErrFileCouldNotBeUploaded || ID == upload.EmptyID {
 		wc.UnprocessableEntity(commons.MakeFailureResponse(
 			"File could not be uploaded", http.StatusUnprocessableEntity,
 		))
@@ -32,22 +33,22 @@ func UploadHandler(wc *util.WebContext, handler uploadHandler) {
 		wc.Ok(commons.MakeSuccessResponse(
 			"Successfully uploaded the file",
 			UploadResult{
-				FileId: ID,
+				FileID: ID,
 			}),
 		)
 	}
 }
 
 func DeleteSingleAppResourceHandler(wc *util.WebContext, handler resourceInteractionHandler) {
-	resourceId := wc.GetResourceId()
-	appId := wc.GetAppId()
-	if err := handler.DeleteSingleResourceById(resourceId, appId); err != nil {
+	resourceID := wc.GetResourceID()
+	appID := wc.GetAppID()
+	if err := handler.DeleteSingleResourceByID(resourceID, appID); err != nil {
 		switch err {
-		case interactions.CouldNotDeleteData:
+		case interactions.ErrCouldNotDeleteData:
 			wc.UnprocessableEntity(commons.MakeFailureResponse("Could not delete the resource information", http.StatusUnprocessableEntity))
-		case interactions.CouldNotDeleteFile:
+		case interactions.ErrCouldNotDeleteFile:
 			wc.UnprocessableEntity(commons.MakeFailureResponse("Could not delete the resource file", http.StatusUnprocessableEntity))
-		case interactions.CouldNotFind:
+		case interactions.ErrCouldNotFind:
 			wc.NotFound(commons.MakeFailureResponse("Could not find the requested resource", http.StatusNotFound))
 		default:
 			wc.InternalServerError(commons.MakeFailureResponse("Unknown error occurred", http.StatusInternalServerError))
@@ -58,8 +59,8 @@ func DeleteSingleAppResourceHandler(wc *util.WebContext, handler resourceInterac
 }
 
 func GetAppResourcesInformationHandler(wc *util.WebContext, handler resourcesHandler) {
-	appId := wc.GetAppId()
-	if info := handler.GetAppResourcesInformation(appId); info.Err != nil {
+	appID := wc.GetAppID()
+	if info := handler.GetAppResourcesInformation(appID); info.Err != nil {
 		wc.NotFound(commons.MakeFailureResponse("Could not retrieve the data", http.StatusNotFound))
 	} else {
 		wc.Ok(commons.MakeSuccessResponse("Successfully retrieved all the available resources", info.Resources))
@@ -83,8 +84,8 @@ func getSingleResourceParams(wc *util.WebContext) download.SingleResourceRequest
 	shouldDownload := strings.ToLower(downloadParam) == "true"
 
 	params := download.SingleResourceRequestParams{
-		ResourceId: wc.GetResourceId(),
-		AppId:      wc.GetAppId(),
+		ResourceID: wc.GetResourceID(),
+		AppID:      wc.GetAppID(),
 		Name:       name,
 		Download:   shouldDownload,
 	}
